@@ -52,3 +52,11 @@ def test():
             }
         }
     }"""
+
+    url = 'https://rickandmortyapi.com/graphql/'
+    response = requests.post(url, json={'query': query})
+
+    print(response.status_code)
+    print(response.text)
+
+    return response.text
