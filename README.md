@@ -1,6 +1,5 @@
 # **Kuvaus**
-Sovellus, jonka avulla käyttäjä voi helposti ja nopeasti 
-nähdä valitsemiensa joukkoliikenteen pysäkkien aikataulut.
+Sovellus, jonka avulla käyttäjä voi helposti nähdä valitsemiensa joukkoliikenteen pysäkkien aikataulut.
 
 
 **Sovelluksen ominaisuuksia**
