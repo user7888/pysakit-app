@@ -41,10 +41,14 @@ def page(id):
 
 @app.route("/hsltest")
 def hsl():
+    # Unix timestamp for current time. Fresh timestamp
+    # needed for queries to work.
+    start_time = '1674755608'
+
     query = """{
         stop(id: "HSL:1240133") {
             name
-            stoptimesWithoutPatterns(startTime: 1674392128) {
+            stoptimesWithoutPatterns(startTime:"""+f'{start_time}'+""") {
                 scheduledArrival
                 realtimeArrival
                 arrivalDelay
@@ -64,6 +68,10 @@ def hsl():
             }
         }  
     }"""
+
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+    return response.text
 
 @app.route("/test")
 def test():
