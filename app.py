@@ -23,6 +23,17 @@ def template():
     messages = result.fetchall()
     return render_template("index_db.html", count=len(messages), messages=messages)
 
+@app.route("/stops")
+def stops():
+    # Placeholder
+    stop_ids = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
+    # SQL
+    sql = text('SELECT id, hsl_id, name, owner FROM stops_new ORDER BY id DESC')
+    result = db.session.execute(sql)
+    stops_for_user = result.fetchall()
+    print("SQL QUERY RESULT:", stops_for_user)
+    return render_template("stops.html", stops=stop_ids)
+
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
     # Fresh timestamp

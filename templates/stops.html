@@ -1,0 +1,10 @@
+<h1>Pysäkit</h1>
+<a href="/new">Lisää uusi</a>
+<hr>
+{% for stop in stops %}
+Pysäkin nimi: {{ stop[1] }} <br>
+Pysäkin tunnus: {{ stop[0] }} <br>
+<a href="/stops/delete">Poista</a> |
+<a href="/stops/schedules/{{ stop[0] }}">Näytä pysäkki</a> <br>
+<hr>
+{% endfor %}
