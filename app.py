@@ -26,21 +26,57 @@ def template():
 @app.route("/stops")
 def stops():
     # Placeholder
-    stop_ids = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
+    stops = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
     # SQL
     sql = text('SELECT id, hsl_id, name, owner FROM stops_new ORDER BY id DESC')
     result = db.session.execute(sql)
     stops_for_user = result.fetchall()
-    print("SQL QUERY RESULT:", stops_for_user)
-    return render_template("stops.html", stops=stop_ids)
 
-@app.route("stops/add", methods=["POST"])
+    for stop in stops_for_user:
+        print("pysäkki", stop)
+        stops.append((stop[1], stop[2]))
+
+    print("---")
+    print("SQL QUERY RESULT:", stops_for_user)
+    print("---")
+    return render_template("stops.html", stops=stops)
+
+@app.route("/stops/new")
+def stops_new():
+    # Search by name or
+    # search by id
+    stop_ids = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
+
+    return render_template("stops_new.html", examples=stop_ids)
+
+@app.route("/stops/add", methods=["POST"])
 def add():
-    content_from_user = request.form["content"]
-    sql = text('INSERT INTO stops_new (content) VALUES (:content)')
-    db.session.execute(sql, {"content": content_from_user})
+    user_input = request.form["content"]
+    hsl_id = str(user_input)
+    print("---")
+    print("INPUT FROM USER:", user_input)
+    print("---")
+
+    # User unputted id is used to make a call to HSL api
+    query = """{
+        stop(id: "HSL:"""+f'{hsl_id}"'+""") {
+            name
+            wheelchairBoarding
+        }
+    }"""
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+
+    # Convert response to dict
+    dict = json.loads(response.text)
+    print("DICT FROM /stops/add", dict)
+
+    # Insert values into database.
+    # placeholder user is used. (test user)
+    sql = text('INSERT INTO stops_new (hsl_id, name, owner) VALUES (:hsl_id, :name, :owner)')
+    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user"})
     db.session.commit()
-    return redirect("/")
+    return redirect("/stops")
 
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
