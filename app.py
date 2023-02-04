@@ -34,6 +34,14 @@ def stops():
     print("SQL QUERY RESULT:", stops_for_user)
     return render_template("stops.html", stops=stop_ids)
 
+@app.route("stops/add", methods=["POST"])
+def add():
+    content_from_user = request.form["content"]
+    sql = text('INSERT INTO stops_new (content) VALUES (:content)')
+    db.session.execute(sql, {"content": content_from_user})
+    db.session.commit()
+    return redirect("/")
+
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
     # Fresh timestamp
