@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import redirect, render_template, request
+from flask import redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from os import getenv
@@ -12,6 +12,7 @@ app = Flask(__name__)
 app.run(debug=True)
 app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.secret_key = getenv("SECRET_KEY")
 db = SQLAlchemy(app)
 
 @app.route("/template")
@@ -23,8 +24,28 @@ def template():
     messages = result.fetchall()
     return render_template("index_db.html", count=len(messages), messages=messages)
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+
+    session["username"] = username
+    return redirect("/stops")
+
+@app.route("/logout")
+def logout():
+    del session["username"]
+    return redirect("/")
+
 @app.route("/stops")
 def stops():
+    if session.get('username') is None:
+        return redirect("/")
+
     # Placeholder
     stops = []
     #stops = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
@@ -45,6 +66,9 @@ def stops():
 
 @app.route("/stops/new")
 def stops_new():
+    if session.get('username') is None:
+        return redirect("/")
+
     # Search by name or
     # search by id
     stop_ids = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
@@ -53,6 +77,9 @@ def stops_new():
 
 @app.route("/stops/delete/<int:id>")
 def stops_delete(id):
+    if session.get('username') is None:
+        return redirect("/")
+
     sql = text('UPDATE stops_new SET visible=FALSE WHERE hsl_id=:id')
     db.session.execute(sql, {"id": str(id)})
     db.session.commit()
@@ -61,6 +88,9 @@ def stops_delete(id):
 
 @app.route("/stops/add", methods=["POST"])
 def add():
+    if session.get('username') is None:
+        return redirect("/")
+
     user_input = request.form["content"]
     hsl_id = str(user_input)
     print("---")
@@ -82,7 +112,7 @@ def add():
     print("DICT FROM /stops/add", dict)
 
     # Insert values into database.
-    # placeholder user is used. (test user)
+    # placeholder user is used (test user)
     sql = text('INSERT INTO stops_new (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
     db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user", "visible": True})
     db.session.commit()
@@ -90,8 +120,10 @@ def add():
 
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
-    # Fresh timestamp
-    # needed for queries.
+    if session.get('username') is None:
+        return redirect("/")
+
+    # Timestamp for HSL api queries
     current_time = str(time.time()).split(".")
     start_of_day = datetime.datetime.combine(datetime.datetime.now(), datetime.time.min)
     print(current_time)

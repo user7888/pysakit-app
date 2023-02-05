@@ -1,8 +1,12 @@
-<title>Etusivu</title>
-<h1>Etusivu</h1>
-<p>{{ message }}</p>
-<ul>
-{% for item in items %}
-<li> {{ item }}
-{% endfor %}
-</ul>
+{% if session.username %}
+<p>Olet kirjautunut nimellä {{ session.username }}</p>
+<a href="/logout">Kirjaudu ulos</a>
+{% else %}
+<form action="/login" method="POST">
+<p>Tunnus:<br>
+<input type="text" name="username"></p>
+<p>Salasana:<br>
+<input type="password" name="password"></p>
+<input type="submit" value="Kirjaudu">
+</form>
+{% endif %}
