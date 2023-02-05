@@ -1,0 +1,1 @@
+CREATE TABLE stops_new (id SERIAL PRIMARY KEY, hsl_id TEXT, owner TEXT, visible BOOLEAN);
