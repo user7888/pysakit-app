@@ -3,9 +3,24 @@ Sovellus, jonka avulla käyttäjä voi
 seurata joukkoliikenteen
 pysäkkien aikatauluja.
 
+**Sovelluksen suunnitellut ominaisuudet**
+- Kotinäkymä, josta käyttäjä näkee valitsemansa joukkoliikenteen pysäkit.
+- Käyttäjä voi lisätä ja poistaa pysäkkejä kotinäkymästä.
+- Valitsemalla pysäkin käyttäjälle avautuu tarkempi näkymä, josta näkyy saapuvien 
+  bussien tai raitiovaunujen aikataulut. Käyttäjälle voidaan näyttää myös tietoa 
+  häiriöstä tai viivästyksistä.
+- Hakutoiminto, jonka avulla käyttäjä voi etsiä haluamansa pysäkit. Tarkempi     toteutus
+  vielä epävarma, haku voisi toimia esimerkiksi pysäkin
+  nimen tai koodin perusteella. Myös sijainnin tai linjan perusteella toimiva
+  haku voisi olla mahdollinen.
+- Käyttäjä voi antaa pysäkeille haluamansa lempinimen.
+- Käyttäjä voi kirjautua sisään ja ulos sekä
+  luoda uuden tunnuksen.
+
 ## **Käynnistämisohjeet**
 
-Sovellus ei ole testattavissa Fly.io:ssa.
+Sovellus ei ole testattavissa Fly.io:ssa. Alla ohjeet paikalliseen
+testaamiseen.
 
 **HUOM:** Toimiakseen sovellus tarvitsee verkkoyhteyden.
 
@@ -29,6 +44,7 @@ $ psql < schema.sql
 Luo tiedosto **.env** ja lisää sinne muuttujat:
 ```
 DATABASE_URL=<tietokannan-paikallinen-osoite>
+SECRET_KEY=<salainen-avain>
 ```
 
 **5. Käynnistä sovellus**
@@ -36,17 +52,14 @@ DATABASE_URL=<tietokannan-paikallinen-osoite>
 $ flask run
 ```
 
+## **Projektin tilanne**
 
-**Sovelluksen ominaisuuksia**
-- Kotinäkymä, josta käyttäjä näkee valitsemansa joukkoliikenteen pysäkit.
-- Käyttäjä voi lisätä ja poistaa pysäkkejä kotinäkymästä.
-- Valitsemalla pysäkin käyttäjälle avautuu tarkempi näkymä, josta näkyy saapuvien 
-  bussien tai raitiovaunujen aikataulut. Käyttäjälle voidaan näyttää myös tietoa 
-  häiriöstä tai viivästyksistä.
-- Hakutoiminto, jonka avulla käyttäjä voi etsiä haluamansa pysäkit. Tarkempi     toteutus
-  vielä epävarma, haku voisi toimia esimerkiksi pysäkin
-  nimen tai koodin perusteella. Myös sijainnin tai linjan perusteella toimiva
-  haku voisi olla mahdollinen.
-- Käyttäjä voi antaa pysäkeille haluamansa lempinimen.
-- Käyttäjä voi kirjautua sisään ja ulos sekä
-  luoda uuden tunnuksen.
+Toteutettuna yksinkertaiset versiot sovelluksen eri sivuista. Hakutoiminnon sivu puuttuu.
+- Päänäkymä, jossa näytetään käyttäjän valitsemat pysäkit.
+- Uuden pysäkin lisääminen päänäkymästä. Pysäkin lisääminen tapahtuu tällä hetkellä pysäkin tunnuksen perusteella, muutama esimerkki löytyy näkymästä. Hakutoiminnon on tarkoitus helpottaa tätä.
+- Pysäkin poistaminen.
+- Yksittäisen pysäkin näkymä, jossa näkyy saapuvat joukkoliikennevälineet.
+- Kirjautumisnäkymä. Toiminnallisuus puuttuu suurilta osin.
+
+
+
