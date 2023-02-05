@@ -24,6 +24,10 @@ def template():
     messages = result.fetchall()
     return render_template("index_db.html", count=len(messages), messages=messages)
 
+@app.route("/empty")
+def empty():
+    return render_template("functionality_missing.html")
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -62,7 +66,7 @@ def stops():
     print("---")
     print("SQL QUERY RESULT:", stops_for_user)
     print("---")
-    return render_template("stops.html", stops=stops)
+    return render_template("stops.html", stops=stops, len=len(stops))
 
 @app.route("/stops/new")
 def stops_new():

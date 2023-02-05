@@ -1,8 +1,10 @@
+<a href="/logout">Kirjaudu ulos</a>
+<h1>Aikataulut</h1>
 <a href="/stops">Takaisin</a>
 <hr>
 {% for arrival in arrivals %}
 Nimi: {{ arrival[0] }} <br>
 Saapuu: {{ arrival[1] }} <br>
-<a href="/">Nappi</a>
+<a href="/empty">Nappi</a>
 <hr>
 {% endfor %}
