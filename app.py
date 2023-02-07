@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import redirect, render_template, request, session
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from os import getenv
@@ -43,6 +44,33 @@ def login():
 @app.route("/logout")
 def logout():
     del session["username"]
+    return redirect("/")
+
+@app.route("/register")
+def register():
+    # Should redirect to index if user is
+    # logged in (and logged out?)
+    if session.get('username'):
+        return redirect("/")
+
+    return render_template("register.html")
+
+@app.route("/users/add", methods=["POST"])
+def add_user():
+    username = request.form["username"]
+    password = request.form["password"]
+    password_again = request.form["password_again"]
+    print("user", username)
+    print("pass", password)
+    print("pass again", password_again)
+    # Raise error passwords do not match
+    # -
+    # Hash the password and insert values to
+    # database
+    hash_value = generate_password_hash(password)
+    sql = text("INSERT INTO users (username, password) VALUES (:username, :password)")
+    db.session.execute(sql, {"username":username, "password":hash_value})
+    db.session.commit()
     return redirect("/")
 
 @app.route("/stops")
