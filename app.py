@@ -122,7 +122,7 @@ def stops_delete(id):
 def add():
     if session.get('username') is None:
         return redirect("/")
-
+    
     user_input = request.form["content"]
     hsl_id = str(user_input)
     print("---")
@@ -213,3 +213,62 @@ def hsl(id):
     date_object = datetime.datetime.now() + time_delta
     print(dict['data']['stop']['stoptimesWithoutPatterns'][0]['realtimeArrival'])
     return render_template('individual_stop.html', arrivals=sign_and_arrival)
+
+@app.route("/stops/search/result", methods=["POST", "GET"])
+def search_result():
+    user_search = request.args["query"]
+    # name: transport stop name
+    # code: transport stop code visible in stops
+    # desc: transport stop street name
+    # locationType: stop or station
+    query = """{
+        stops(name: """+f'"{str(user_search)}"'+"""){
+            gtfsId
+            name
+            code
+            desc
+            locationType
+        }
+    }"""
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+    dict = json.loads(response.text)
+
+    # Access the array from query. Each
+    # transport stop is a dict.
+    search_result_list = dict["data"]["stops"]
+    result_len = len(search_result_list)
+    for alkio in search_result_list:
+        print(alkio)
+    return render_template("search_results.html", user_search=user_search, search_list=search_result_list, len=result_len)
+
+@app.route("/stops/search")
+def stops_search():
+    return render_template("search.html")
+
+@app.route("/stops/search/add/<id>", methods=["POST", "GET"])
+def add_search(id):
+    if session.get('username') is None:
+        return redirect("/")
+    # Get id from parameters
+    hsl_id = id.split(":")[1]
+
+    # User unputted id is used to make a call to HSL api
+    query = """{
+        stop(id: "HSL:"""+f'{hsl_id}"'+""") {
+            name
+            wheelchairBoarding
+        }
+    }"""
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+
+    # Convert response to dict
+    dict = json.loads(response.text)
+
+    # Insert values into database.
+    # placeholder user is used (test user)
+    sql = text('INSERT INTO stops_new (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
+    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user", "visible": True})
+    db.session.commit()
+    return redirect("/stops")

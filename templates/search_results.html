@@ -1,0 +1,13 @@
+<a href="/logout">Kirjaudu ulos</a>
+<h1>Hakutulokset</h1>
+<a href="/stops/search">Takaisin</a>
+<hr>
+{% if len == 0 %}
+<h4>Hakusanalla ei löytynyt pysäkkejä</h4>
+{% else %}
+    {% for result in search_list %}
+    Pysäkki: {{ result["name"] }} | {{ result["desc"] }} | {{ result["code"] }}<br>
+    <a href="/stops/search/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+    <hr>
+    {% endfor %}
+{% endif %}
