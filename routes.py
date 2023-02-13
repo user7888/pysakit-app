@@ -1,4 +1,5 @@
 from app import app
+from db import db
 from flask import render_template
 from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
@@ -8,7 +9,7 @@ import datetime
 import requests
 import json
 import time
-db = SQLAlchemy(app)
+import users
 
 @app.route("/template")
 def template():
@@ -27,49 +28,44 @@ def empty():
 def index():
     return render_template("index.html")
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST", "GET"])
 def login():
-    username = request.form["username"]
-    password = request.form["password"]
-
-    session["username"] = username
-    return redirect("/stops")
+    if request.method == "GET":
+       return render_template("index.html")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        if users.login(username, password):
+            return redirect("/stops")
+        else:
+            return render_template("error.html", message="Väärä tunnus tai salasana")
 
 @app.route("/logout")
 def logout():
-    del session["username"]
+    users.logout()
     return redirect("/")
 
-@app.route("/register")
+@app.route("/register", methods=["POST", "GET"])
 def register():
-    # Should redirect to index if user is
-    # logged in (and logged out?)
-    if session.get('username'):
+    if session.get('user_id'):
         return redirect("/")
 
-    return render_template("register.html")
-
-@app.route("/users/add", methods=["POST"])
-def add_user():
-    username = request.form["username"]
-    password = request.form["password"]
-    password_again = request.form["password_again"]
-    print("user", username)
-    print("pass", password)
-    print("pass again", password_again)
-    # Raise error passwords do not match
-    # -
-    # Hash the password and insert values to
-    # database
-    hash_value = generate_password_hash(password)
-    sql = text("INSERT INTO users (username, password) VALUES (:username, :password)")
-    db.session.execute(sql, {"username":username, "password":hash_value})
-    db.session.commit()
-    return redirect("/")
+    if request.method == "GET":
+        return render_template("register.html")
+    if request.method == "POST":
+        username = request.form["username"]
+        password1 = request.form["password1"]
+        password2 = request.form["password2"]
+        if password1 != password2:
+            return render_template("error.html", message="Salasanat eivät täsmää")
+        if users.register(username, password1):
+            return redirect("/stops")
+        else:
+            return render_template("error.html", message="Rekisteröinti ei onnistunut")
 
 @app.route("/stops")
 def stops():
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
 
     # Placeholder
@@ -92,7 +88,7 @@ def stops():
 
 @app.route("/stops/new")
 def stops_new():
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
 
     # Search by name or
@@ -103,7 +99,7 @@ def stops_new():
 
 @app.route("/stops/delete/<int:id>")
 def stops_delete(id):
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
 
     sql = text('UPDATE stops_new SET visible=FALSE WHERE hsl_id=:id')
@@ -114,7 +110,7 @@ def stops_delete(id):
 
 @app.route("/stops/add", methods=["POST"])
 def add():
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
     
     user_input = request.form["content"]
@@ -146,7 +142,7 @@ def add():
 
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
 
     # Timestamp for HSL api queries
@@ -242,12 +238,12 @@ def stops_search():
 
 @app.route("/stops/search/add/<id>", methods=["POST", "GET"])
 def add_search(id):
-    if session.get('username') is None:
+    if session.get('user_id') is None:
         return redirect("/")
     # Get id from parameters
     hsl_id = id.split(":")[1]
 
-    # User unputted id is used to make a call to HSL api
+    # User inputted id is used to make a call to HSL api
     query = """{
         stop(id: "HSL:"""+f'{hsl_id}"'+""") {
             name
