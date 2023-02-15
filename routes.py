@@ -10,6 +10,7 @@ import requests
 import json
 import time
 import users
+import stops
 
 @app.route("/template")
 def template():
@@ -64,48 +65,26 @@ def register():
             return render_template("error.html", message="Rekisteröinti ei onnistunut")
 
 @app.route("/stops")
-def stops():
+def stop_view():
     if session.get('user_id') is None:
         return redirect("/")
 
-    # Placeholder
-    stops = []
-    #stops = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
-    # SQL
-    sql = text('SELECT id, hsl_id, name, owner, visible FROM stops_new ORDER BY id DESC')
-    result = db.session.execute(sql)
-    stops_for_user = result.fetchall()
-
-    for stop in stops_for_user:
-        print("pysäkki", stop)
-        if stop[4] == True:
-            stops.append((stop[1], stop[2]))
-
-    print("---")
-    print("SQL QUERY RESULT:", stops_for_user)
-    print("---")
-    return render_template("stops.html", stops=stops, len=len(stops))
+    list = stops.get_stops()
+    return render_template("stops.html", stops=list, len=len(list))
 
 @app.route("/stops/new")
 def stops_new():
     if session.get('user_id') is None:
         return redirect("/")
 
-    # Search by name or
-    # search by id
-    stop_ids = [('1230109', 'Kumpulan kampus'), ('1230112', 'Kumpulan kampus'), ('1240108', 'Kumpula'), ('1240419', 'Kumpulan kampus')]
-
-    return render_template("stops_new.html", examples=stop_ids)
+    return render_template("stops_new.html")
 
 @app.route("/stops/delete/<int:id>")
 def stops_delete(id):
     if session.get('user_id') is None:
         return redirect("/")
 
-    sql = text('UPDATE stops_new SET visible=FALSE WHERE hsl_id=:id')
-    db.session.execute(sql, {"id": str(id)})
-    db.session.commit()
-
+    stops.delete(id)
     return redirect("/stops")
 
 @app.route("/stops/add", methods=["POST"])
@@ -135,7 +114,7 @@ def add():
 
     # Insert values into database.
     # placeholder user is used (test user)
-    sql = text('INSERT INTO stops_new (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
+    sql = text('INSERT INTO stops (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
     db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user", "visible": True})
     db.session.commit()
     return redirect("/stops")
@@ -258,7 +237,9 @@ def add_search(id):
 
     # Insert values into database.
     # placeholder user is used (test user)
-    sql = text('INSERT INTO stops_new (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
-    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user", "visible": True})
+    #
+    # Owner täytyy päivittää
+    sql = text('INSERT INTO stops (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
+    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": session.get('user_id'), "visible": True})
     db.session.commit()
     return redirect("/stops")

@@ -7,9 +7,9 @@
 {% else %}
 <hr>
     {% for stop in stops %}
-    Pysäkin nimi: {{ stop[1] }} <br>
-    Pysäkin tunnus: {{ stop[0] }} <br>
-    <a href="/stops/delete/{{ stop[0] }}">Poista</a> |
-    <a href="/stops/schedules/{{ stop[0] }}">Näytä pysäkki</a> <br>
+    Pysäkin nimi: {{ stop[2] }} <br>
+    Pysäkin tunnus: {{ stop[1] }} <br>
+    <a href="/stops/delete/{{ stop[1] }}">Poista</a> |
+    <a href="/stops/schedules/{{ stop[1] }}">Näytä pysäkki</a> <br>
     {% endfor %}
 {% endif %}
