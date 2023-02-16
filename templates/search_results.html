@@ -7,7 +7,7 @@
 {% else %}
     {% for result in search_list %}
     Pysäkki: {{ result["name"] }} | {{ result["desc"] }} | {{ result["code"] }}<br>
-    <a href="/stops/search/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+    <a href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
     <hr>
     {% endfor %}
 {% endif %}
