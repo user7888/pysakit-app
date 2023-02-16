@@ -12,19 +12,6 @@ import time
 import users
 import stops
 
-@app.route("/template")
-def template():
-    # 'should be declared as text' error fix
-    sql = text("SELECT content FROM messages")
-    result = db.session.execute(sql)
-
-    messages = result.fetchall()
-    return render_template("index_db.html", count=len(messages), messages=messages)
-
-@app.route("/empty")
-def empty():
-    return render_template("functionality_missing.html")
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -87,159 +74,46 @@ def stops_delete(id):
     stops.delete(id)
     return redirect("/stops")
 
-@app.route("/stops/add", methods=["POST"])
-def add():
-    if session.get('user_id') is None:
-        return redirect("/")
-    
-    user_input = request.form["content"]
-    hsl_id = str(user_input)
-    print("---")
-    print("INPUT FROM USER:", user_input)
-    print("---")
-
-    # User unputted id is used to make a call to HSL api
-    query = """{
-        stop(id: "HSL:"""+f'{hsl_id}"'+""") {
-            name
-            wheelchairBoarding
-        }
-    }"""
-    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
-    response = requests.post(url, json={'query': query})
-
-    # Convert response to dict
-    dict = json.loads(response.text)
-    print("DICT FROM /stops/add", dict)
-
-    # Insert values into database.
-    # placeholder user is used (test user)
-    sql = text('INSERT INTO stops (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
-    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": "test_user", "visible": True})
-    db.session.commit()
-    return redirect("/stops")
-
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
     if session.get('user_id') is None:
         return redirect("/")
 
-    # Timestamp for HSL api queries
-    current_time = str(time.time()).split(".")
-    start_of_day = datetime.datetime.combine(datetime.datetime.now(), datetime.time.min)
-    print(current_time)
-    start_time = current_time[0]
-
-    query = """{
-        stop(id: "HSL:"""+f'{str(id)}"'+""") {
-            name
-            stoptimesWithoutPatterns(startTime:"""+f'{start_time}'+""") {
-                scheduledArrival
-                realtimeArrival
-                arrivalDelay
-                scheduledDeparture
-                realtimeDeparture
-                departureDelay
-                realtime
-                realtimeState
-                serviceDay
-                headsign
-                trip {
-                    bikesAllowed
-                    alerts {
-                        alertDescriptionText
-                    }
-                }
-            }
-        }  
-    }"""
-
-    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
-    response = requests.post(url, json={'query': query})
-    # Convert to dict
-    dict = json.loads(response.text)
-    # Arrival time from response
-    arrival_time = dict['data']['stop']['stoptimesWithoutPatterns'][0]['realtimeArrival']
-    arrival_time_list = dict['data']['stop']['stoptimesWithoutPatterns']
-    sign_and_arrival = []
-
-    for element in arrival_time_list:
-        element_arrival = element['realtimeArrival']
-        time_delta = datetime.timedelta(seconds=element_arrival)
-        date_object = start_of_day + time_delta
-        # Minutes format fix
-        minutes = date_object.minute
-        if minutes < 10:
-            minutes = "0"+str(minutes)
-        temp = (element['headsign'], f'{date_object.hour}:{minutes}')
-        sign_and_arrival.append(temp)
-
-    for element in sign_and_arrival:
-        print(element)
-    # Converting seconds from midnight
-    # to current time.
-    time_delta = datetime.timedelta(seconds=arrival_time)
-    date_object = datetime.datetime.now() + time_delta
-    print(dict['data']['stop']['stoptimesWithoutPatterns'][0]['realtimeArrival'])
-    return render_template('individual_stop.html', arrivals=sign_and_arrival)
+    stop_arrivals = stops.get_stop_arrivals(id)
+    return render_template('individual_stop.html', arrivals=stop_arrivals)
 
 @app.route("/stops/search/result", methods=["POST", "GET"])
 def search_result():
-    user_search = request.args["query"]
-    # name: transport stop name
-    # code: transport stop code visible in stops
-    # desc: transport stop street name
-    # locationType: stop or station
-    query = """{
-        stops(name: """+f'"{str(user_search)}"'+"""){
-            gtfsId
-            name
-            code
-            desc
-            locationType
-        }
-    }"""
-    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
-    response = requests.post(url, json={'query': query})
-    dict = json.loads(response.text)
-
-    # Access the array from query. Each
-    # transport stop is a dict.
-    search_result_list = dict["data"]["stops"]
-    result_len = len(search_result_list)
-    for alkio in search_result_list:
-        print(alkio)
-    return render_template("search_results.html", user_search=user_search, search_list=search_result_list, len=result_len)
+    user_search = request.args["search"]
+    search_results, results_length = stops.search(user_search)
+    return render_template("search_results.html", user_search=user_search, search_list=search_results, len=results_length)
 
 @app.route("/stops/search")
 def stops_search():
     return render_template("search.html")
 
-@app.route("/stops/search/add/<id>", methods=["POST", "GET"])
+@app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
+@app.route("/stops/add/<id>")
 def add_search(id):
-    if session.get('user_id') is None:
-        return redirect("/")
-    # Get id from parameters
-    hsl_id = id.split(":")[1]
+    if request.method == "GET":
+        hsl_id = id.split(":")[1]
+        stops.add_stop(hsl_id)
+    if request.method == "POST":
+        user_input = request.form["content"]
+        hsl_id = str(user_input)
+        stops.add_stop(hsl_id)
 
-    # User inputted id is used to make a call to HSL api
-    query = """{
-        stop(id: "HSL:"""+f'{hsl_id}"'+""") {
-            name
-            wheelchairBoarding
-        }
-    }"""
-    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
-    response = requests.post(url, json={'query': query})
-
-    # Convert response to dict
-    dict = json.loads(response.text)
-
-    # Insert values into database.
-    # placeholder user is used (test user)
-    #
-    # Owner täytyy päivittää
-    sql = text('INSERT INTO stops (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
-    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": session.get('user_id'), "visible": True})
-    db.session.commit()
     return redirect("/stops")
+
+@app.route("/empty")
+def empty():
+    return render_template("functionality_missing.html")
+
+@app.route("/template")
+def template():
+    # 'should be declared as text' error fix
+    sql = text("SELECT content FROM messages")
+    result = db.session.execute(sql)
+
+    messages = result.fetchall()
+    return render_template("index_db.html", count=len(messages), messages=messages)
