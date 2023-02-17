@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+{% block title %}Lisää{% endblock %}
+{% block content %}
+<div class="content">
+  <h2>Lisää uusi pysäkki</h2>
+  <hr>
+  <form id="add-stop-form" action="/stops/add" method="POST">
+    <label for="content">Pysäkin tunnus</label>
+    <input type="text" name="content" placeholder="">
+    <input id="add-stop-form-button" type="submit" value="Lisää pysäkki">
+  </form>
+{% endblock %}
+</div>

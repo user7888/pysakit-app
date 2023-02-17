@@ -1,13 +1,20 @@
-<a href="/logout">Kirjaudu ulos</a>
-<h1>Hakutulokset</h1>
-<a href="/stops/search">Takaisin</a>
-<hr>
-{% if len == 0 %}
-<h4>Hakusanalla ei löytynyt pysäkkejä</h4>
-{% else %}
-    {% for result in search_list %}
-    Pysäkki: {{ result["name"] }} | {{ result["desc"] }} | {{ result["code"] }}<br>
-    <a href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+{% extends "index.html" %}
+{% block title %}Pysäkit{% endblock %}
+{% block content %}
+<div class="content">
+    <h2>Hakutulokset</h2>
     <hr>
+    {% if len == 0 %}
+    <h4>Hakusanalla ei löytynyt pysäkkejä</h4>
+    {% else %}
+    {% for result in search_list %}
+    <ul>
+    <li id="search-element">
+    Pysäkki: {{ result["name"] }} | {{ result["desc"] }} | {{ result["code"] }}<br>
+    <a id="search-link" href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+       </li>
+    </ul>
     {% endfor %}
 {% endif %}
+{% endblock %}
+</div>

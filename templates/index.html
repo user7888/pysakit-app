@@ -1,14 +1,31 @@
-{% if session.username %}
-<p>Olet kirjautunut nimellä {{ session.username }}</p>
-<a href="/logout">Kirjaudu ulos</a>
-{% else %}
-<h1>Kirjaudu sisään</h1>
-<form action="/login" method="POST">
-<p>Tunnus:<br>
-<input type="text" name="username"></p>
-<p>Salasana:<br>
-<input type="password" name="password"></p>
-<input type="submit" value="Kirjaudu">
-<a href="/register">Luo tunnus</a>
-</form>
-{% endif %}
+<!DOCTYPE html>
+<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pysakit App - {% block title %}{% endblock %}</title>
+
+<body>
+  <div class="header">
+    <h1>Pysäkit App</h1>
+    {% if session.user_id %}
+    <a href="/logout">Kirjaudu ulos</a>
+    {% endif %}
+  </div>
+  <nav>
+    {% if not session.user_id %}
+    <ul>
+      <li><a href="/login">Kirjaudu</a></li>
+      <li><a href="/register">Rekisteröidy</a></li>
+    </ul>
+    {% endif %}
+    {% if session.user_id %}
+    <ul>
+      <li><a href="/stops">Pysäkit</a></li>
+      <li><a href="/stops/new">Lisää pysäkki</a></li>
+      <li><a href="/stops/search">Haku</a></li>
+    </ul>
+    {% endif %}
+  </nav>
+
+  {% block content %}{% endblock %}
+
+</body>

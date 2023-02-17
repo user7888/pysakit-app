@@ -1,10 +1,17 @@
-<a href="/logout">Kirjaudu ulos</a>
-<h1>Aikataulut</h1>
-<a href="/stops">Takaisin</a>
+{% extends "index.html" %}
+{% block title %}Etusivu{% endblock %}
+{% block content %}
+<div class="content">
+<h2>Aikataulut</h2>
 <hr>
 {% for arrival in arrivals %}
-Nimi: {{ arrival[0] }} <br>
-Saapuu: {{ arrival[1] }} <br>
-<a href="/empty">Nappi</a>
-<hr>
+<ul>
+    <li id="arrival-element">
+    Nimi: {{ arrival[0] }} <br>
+    Saapuu: {{ arrival[1] }} <br>
+    <a href="/empty">Nappi</a>
+    </li>
+</ul>
 {% endfor %}
+{% endblock %}
+</div>

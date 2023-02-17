@@ -1,10 +1,13 @@
-<a href="/logout">Kirjaudu ulos</a>
-<h1>Haku</h1>
-<a href="/stops/new">Takaisin</a>
+{% extends "index.html" %}
+{% block title %}Haku{% endblock %}
+{% block content %}
+<div class="content">
+<h2>Haku</h2>
 <hr>
-<form action="/stops/search/result" method="GET">
-    Hakusana <br>
+<form id="search-stop-form" action="/stops/search/result" method="GET">
+    <label for="content">Hakusana</label>
     <input type="text" name="search">
-    <br>
-    <input type="submit" value="Lähetä">
+    <input id="search-stop-button" type="submit" value="Lähetä">
 </form>
+{% endblock %}
+</div>

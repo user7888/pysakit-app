@@ -1,11 +1,17 @@
-<h1>Luo käyttäjätunnus</h1>
-<a href="/">Takaisin</a>
-<form action="/register" method="POST">
-<p>Tunnus<br>
-<input type="text" name="username"></p>
-<p>Salasana<br>
-<input type="password" name="password1"></p>
-<p>Salasana uudelleen<br>
-<input type="password" name="password2"></p>
-<input type="submit" value="Luo tunnus">
-</form>
+{% extends "index.html" %}
+{% block title %}Rekisteröidy{% endblock %}
+{% block content %}
+<div class="content">
+    <h2>Luo uusi käyttäjä</h2>
+    <hr>
+    <form id="register-form" action="/register" method="POST">
+      <label for="username">Tunnus</label>
+      <input type="text" name="username">
+      <label for="password1">Salasana</label>
+      <input type="password1" name="password1">
+      <label for="password2">Salasana uudelleen</label>
+      <input type="password2" name="password2">
+      <input id ="register-button" type="submit" value="Luo käyttäjä">
+    </form>
+</div>
+{% endblock %}

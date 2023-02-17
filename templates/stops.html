@@ -1,15 +1,23 @@
-<a href="/logout">Kirjaudu ulos</a>
-<h1>Pysäkit</h1>
-<a href="/stops/new">Lisää uusi</a>
-{% if len == 0 %}
-<hr>
-<h3>Sinulla ei velä ole pysäkkejä seurannassa</h3>
-{% else %}
-<hr>
+{% extends "index.html" %}
+{% block title %}Pysäkit{% endblock %}
+{% block content %}
+<div class="content">
+  <h2>Pysäkit</h2>
+  {% if len == 0 %}
+  <hr>
+  <h3>Sinulla ei velä ole pysäkkejä seurannassa</h3>
+  {% else %}
+  <hr>
+    <ul>
     {% for stop in stops %}
-    Pysäkin nimi: {{ stop[2] }} <br>
-    Pysäkin tunnus: {{ stop[1] }} <br>
-    <a href="/stops/delete/{{ stop[1] }}">Poista</a> |
-    <a href="/stops/schedules/{{ stop[1] }}">Näytä pysäkki</a> <br>
+      <li id="stop-element">
+      <h3 id="stop-name">{{ stop[2] }}</h3>
+      <p id="stop-info-text">info: {{ stop[1] }}</p>
+      <a id="stop-delete" href="/stops/delete/{{ stop[1] }}">Poista</a>
+      <a id="stop-info" href="/stops/schedules/{{ stop[1] }}">Näytä pysäkki</a>
+      </li>
     {% endfor %}
+    </ul>
 {% endif %}
+{% endblock %}
+</div>

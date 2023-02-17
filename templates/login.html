@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+{% block title %}Kirjaudu{% endblock %}
+{% block content %}
+<div class="content">
+    <h2>Kirjaudu sisään</h2>
+    <hr>
+    <form id="login-form" action="/login" method="POST">
+      <label for="username">Tunnus</label>
+      <input type="text" name="username">
+      <label for="password">Salasana</label>
+      <input type="password" name="password">
+      <input id="login-button" type="submit" value="Kirjaudu">
+    </form>
+</div>
+{% endblock %}
