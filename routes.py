@@ -14,12 +14,16 @@ import stops
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if session.get('user_id'):
+        return redirect("/stops")
+    if not session.get('user_id'):
+        return render_template('login.html')
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "GET":
-       return render_template("index.html")
+       return render_template("login.html")
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -64,7 +68,7 @@ def stops_new():
     if session.get('user_id') is None:
         return redirect("/")
 
-    return render_template("stops_new.html")
+    return render_template("stops_add.html")
 
 @app.route("/stops/delete/<int:id>")
 def stops_delete(id):
