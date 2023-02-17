@@ -1,0 +1,270 @@
+body {
+    margin: auto;
+    max-width: 45em;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background: floralwhite;
+}
+
+.content {
+    background: darkcyan;
+    padding: 1.5em 2em;
+    border-radius: .9em;
+    margin-bottom: 1em;
+ }
+
+nav ul {
+    padding: 0;
+    margin: .5em;
+    text-align: center;
+}
+
+nav li {
+    display: inline-block;
+    padding: .5em;
+    background: darkcyan;
+    padding: .5em 1em;
+    border-radius: .5em;
+    margin: .2em;
+    color: white;
+}
+
+nav li:hover {
+    background-color: rgb(0, 100, 100);
+}
+
+a {
+    color: floralwhite;
+    text-decoration: none;
+  }
+
+.header {
+    background: darkcyan;
+    font-weight: bold;
+    padding: 2em 1em;
+    font-size: 2em;
+    border-radius: .5em;
+    margin-top: .5em;
+    color: white;
+}
+
+#login-form {
+    background: white;
+    border-radius: .5em;
+    display: grid;
+
+    max-width: 20em;
+    grid-template-columns: 20em;
+    grid-row-gap: .3em;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-left: .4em;
+    padding-right: .4em;
+    margin: auto;
+}
+
+form input {
+    margin: auto 5em;
+    border-radius: .5em;
+}
+
+form label {
+    margin: auto 4.3em;
+}
+
+form #login-button {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+    margin: auto;
+    margin-top: .5em;
+    margin-bottom: .5em;
+    width: 10em;
+    background: lightcoral;
+    color: white;
+
+    border-radius: .8em;
+}
+
+form #login-button:hover {
+    background: rgb(0, 100, 100);
+    color: white;
+}
+
+#register-form {
+    background: white;
+    border-radius: .5em;
+    display: grid;
+
+    max-width: 20em;
+    grid-template-columns: 20em;
+    grid-row-gap: .3em;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-left: .4em;
+    padding-right: .4em;
+    margin: auto;
+}
+
+form #register-button {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+    margin: auto;
+    width: 10em;
+    background: lightcoral;
+    color: white;
+
+    border-radius: .8em;
+    margin-top: .5em;
+}
+
+form #login-button:hover {
+    background: rgb(0, 100, 100);
+    color: white;
+}
+
+h2 {
+    margin-top: 0;
+    color: white;
+}
+
+#stop-element {
+    background: white;
+    margin-top: 1em;
+    border-radius: .8em;
+    padding: 0.5em;
+
+    display: grid;
+    max-width: 35em;
+    grid-template-columns: 10em 10em 5em 10em;
+    grid-template-rows: 2em 2em 4em;
+    grid-row-gap: .1em;
+}
+
+#stop-text {
+    grid-column-start: 1;
+}
+
+#stop-link {
+    color: black;
+}
+
+#stop-info {
+    background: lightcoral;
+    color: white;
+    grid-column-start: 4;
+    grid-row-start: 1;
+    width: 8em;
+    height: 3em;
+    text-align: center;
+    border-radius: .7em;
+    padding-top: .4em;
+
+    line-height: 2.5em;
+    margin-left: 1.5em;
+    margin-top: .5em;
+}
+
+#stop-delete {
+    background: lightcoral;
+    grid-column-start: 1;
+    grid-row-start: 3;
+
+    width: 5em;
+    height: 2em;
+    text-align: center;
+    border-radius: .7em;
+    padding-top: .4em;
+
+    line-height: 1.8em;
+    margin-left: .2em;
+    margin-top: 1.2em;
+}
+
+#stop-name {
+    grid-column-start: 1;
+    grid-row-start: 1;
+    margin-top: .2em;
+    margin-left: .2em;
+}
+
+#stop-info-text {
+    grid-column-start: 1;
+    grid-row-start: 2;
+    margin-left: .2em;
+    margin-top: .2em;
+}
+
+#add-stop-form {
+    background: white;
+    border-radius: .5em;
+    display: grid;
+
+    max-width: 20em;
+    grid-template-columns: 20em;
+    grid-row-gap: .3em;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-left: .4em;
+    padding-right: .4em;
+    margin: auto;
+} 
+
+#add-stop-form-button {
+    background: lightcoral;
+    border-color: lightcoral;
+    color: white;
+    width: 8em;
+    height: 3em;
+    text-align: center;
+    margin: auto;
+    margin-top: 1em;
+}
+
+#search-stop-form {
+    background: white;
+    border-radius: .5em;
+    display: grid;
+
+    max-width: 20em;
+    grid-template-columns: 20em;
+    grid-row-gap: .3em;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-left: .4em;
+    padding-right: .4em;
+    margin: auto;
+}
+
+#search-stop-button {
+    background: lightcoral;
+    border-color: lightcoral;
+    color: white;
+    width: 8em;
+    height: 3em;
+    text-align: center;
+    margin: auto;
+    margin-top: 1em;
+}
+
+#search-element {
+    background: white;
+    margin-top: 1em;
+    border-radius: .8em;
+    padding: 0.5em;
+}
+
+#search-link {
+    color: black;
+}
+
+#arrival-element {
+    background: white;
+    margin-top: 1em;
+    border-radius: .8em;
+    padding: 0.5em;
+}
