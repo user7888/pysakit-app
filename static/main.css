@@ -247,6 +247,7 @@ h2 {
     width: 8em;
     height: 3em;
     text-align: center;
+    margin-top: 1em;
     margin: auto;
     margin-top: 1em;
 }
@@ -267,4 +268,27 @@ h2 {
     margin-top: 1em;
     border-radius: .8em;
     padding: 0.5em;
+}
+
+#error-message {
+    margin: auto;
+    background: white;
+    border-radius: .8em;
+    padding: 0.5em;
+    width: 20em;
+    height: 10em;
+    text-align: center;
+}
+
+#button-generic {
+    background: lightcoral;
+    border-color: lightcoral;
+    color: white;
+    width: 8em;
+    height: 3em;
+    text-align: center;
+    margin-top: 1em;
+    margin: auto;
+    margin-top: 1em;
+    border: none;
 }

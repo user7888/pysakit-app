@@ -1,4 +1,15 @@
-<h1>Virhe</h1>
-<a href="/">Takaisin</a>
-<hr>
-<p>{{ message }}</p>
+{% extends "index.html" %}
+{% block title %}Rekisteröidy{% endblock %}
+{% block content %}
+<div class="content">
+    <h2>Virhe</h2>
+    <hr>
+    <div id="error-message">
+      <a href="/">Takaisin</a>
+      <p id="">{{ message }}</p>
+      <form action="/" method="GET">
+        <input id="button-generic" type="submit" value="OK">
+    </form>
+    </div>
+</div>
+{% endblock %}
