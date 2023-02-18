@@ -99,15 +99,35 @@ def add_stop(hsl_id):
     # Make the query to HSL api.
     query = """{
         stop(id: "HSL:"""+f'{hsl_id}"'+""") {
+            gtfsId
             name
             wheelchairBoarding
+            code
         }
     }"""
     url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
     response = requests.post(url, json={'query': query})
     dict = json.loads(response.text)
     # Save stop data to database.
-    sql = text('INSERT INTO stops (hsl_id, name, owner, visible) VALUES (:hsl_id, :name, :owner, :visible)')
-    db.session.execute(sql, {"hsl_id": hsl_id, "name": dict['data']['stop']['name'], "owner": session.get('user_id'), "visible": True})
+    sql = text('INSERT INTO stops (hsl_id, hsl_code, name, owner, visible) VALUES (:hsl_id, :hsl_code, :name, :owner, :visible)')
+    db.session.execute(sql, {"hsl_id": hsl_id, "hsl_code":dict['data']['stop']['code'],"name": dict['data']['stop']['name'], "owner": session.get('user_id'), "visible": True})
+    db.session.commit()
+    return
+
+def add_stop_by_code(hsl_code):
+    query = """{
+        stops(name: """+f'"{str(hsl_code)}"'+""") {
+            gtfsId
+            name
+            code
+        }
+    }"""
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+    dict = json.loads(response.text)
+    # Save stop data to database.
+    hsl_id = dict['data']['stops'][0]['gtfsId'].split(':')[1]
+    sql = text('INSERT INTO stops (hsl_id, hsl_code, name, owner, visible) VALUES (:hsl_id, :hsl_code, :name, :owner, :visible)')
+    db.session.execute(sql, {"hsl_id": hsl_id, "hsl_code":dict['data']['stops'][0]['code'],"name": dict['data']['stops'][0]['name'], "owner": session.get('user_id'), "visible": True})
     db.session.commit()
     return

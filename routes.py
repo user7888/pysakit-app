@@ -98,20 +98,17 @@ def stops_search():
 
 @app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
 @app.route("/stops/add/<id>")
-def add_search(id):
+def stops_add(id):
     if request.method == "GET":
         hsl_id = id.split(":")[1]
         stops.add_stop(hsl_id)
     if request.method == "POST":
         user_input = request.form["content"]
-        hsl_id = str(user_input)
-        stops.add_stop(hsl_id)
+        hsl_code = str(user_input)
+        # error handling here
+        stops.add_stop_by_code(hsl_code)
 
     return redirect("/stops")
-
-@app.route("/empty")
-def empty():
-    return render_template("functionality_missing.html")
 
 @app.route("/template")
 def template():

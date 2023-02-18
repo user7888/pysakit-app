@@ -8,7 +8,8 @@ CREATE TABLE users (
 
 CREATE TABLE stops (
     id SERIAL PRIMARY KEY, 
-    hsl_id TEXT, 
+    hsl_id TEXT,
+    hsl_code TEXT, 
     name TEXT, 
     owner INTEGER REFERENCES users, 
     visible BOOLEAN
