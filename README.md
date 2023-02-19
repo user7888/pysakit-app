@@ -54,12 +54,23 @@ $ flask run
 
 ## **Projektin tilanne**
 
-Toteutettuna yksinkertaiset versiot sovelluksen eri sivuista. Hakutoiminnon sivu puuttuu.
+Toteutetut ominaisuudet
 - Päänäkymä, jossa näytetään käyttäjän valitsemat pysäkit.
-- Uuden pysäkin lisääminen päänäkymästä. Pysäkin lisääminen tapahtuu tällä hetkellä pysäkin tunnuksen perusteella, muutama esimerkki löytyy näkymästä. Hakutoiminnon on tarkoitus helpottaa tätä.
+- Uuden pysäkin lisääminen.
+- Hakutoiminto pysäkkien etsimiseen
 - Pysäkin poistaminen.
 - Yksittäisen pysäkin näkymä, jossa näkyy saapuvat joukkoliikennevälineet.
-- Kirjautumisnäkymä. Toiminnallisuus puuttuu suurilta osin.
+- Kirjautuminen ja käyttäjätunnuksen rekisteröinti.
+
+Keskeneräiset
+- Käyttäjä voi nimetä pysäkkejä.
+- Virheidenkäsittelyn parantaminen.
+- Visuaalisen ilmeen parantaminen.
+- Enemmän infoa saapuvista joukkoliikennevälineistä
+  yksittäisen pysäkin näkymään.
+- Käytettävyyden ja ulkonäön parantelu.
+- Oikeudet, syötteet ja tietoturva.
+
 
 
 
