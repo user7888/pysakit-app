@@ -7,7 +7,9 @@
   <div class="header">
     <h1>Pysäkit App</h1>
     {% if session.user_id %}
-    <a href="/logout">Kirjaudu ulos</a>
+    <form action="/logout" method="GET">
+      <input id="button-logout" type="submit" value="Kirjaudu ulos">
+    </form>
     {% endif %}
   </div>
   <nav>

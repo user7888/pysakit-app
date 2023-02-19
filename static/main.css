@@ -35,12 +35,13 @@ nav li:hover {
 a {
     color: floralwhite;
     text-decoration: none;
-  }
+}
 
 .header {
     background: darkcyan;
     font-weight: bold;
-    padding: 2em 1em;
+    height: 10em;
+    padding: 1em 1em;
     font-size: 2em;
     border-radius: .5em;
     margin-top: .5em;
@@ -291,4 +292,17 @@ h2 {
     margin: auto;
     margin-top: 1em;
     border: none;
+}
+
+#button-logout {
+    background: lightcoral;
+    border-color: lightcoral;
+    font-weight: bold;
+    color: white;
+    width: 8em;
+    height: 3em;
+    text-align: center;
+    border: none;
+    margin-top: 9em;
+    margin-left: .8em;
 }
