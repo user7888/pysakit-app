@@ -7,9 +7,9 @@
     <div id="error-message">
       <a href="/">Takaisin</a>
       <p id="">{{ message }}</p>
-      <form action="/" method="GET">
+      <form action="{{ redirect_url }}" method="GET">
         <input id="button-generic" type="submit" value="OK">
-    </form>
+      </form>
     </div>
 </div>
 {% endblock %}

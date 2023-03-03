@@ -3,7 +3,7 @@ from db import db
 from flask import render_template
 from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 import requests
@@ -29,7 +29,9 @@ def login():
         if users.login(username, password):
             return redirect("/stops")
         else:
-            return render_template("error.html", message="Väärä tunnus tai salasana")
+            return render_template("error.html", \
+                                   message="Väärä tunnus tai salasana", \
+                                   redirect_url=url_for('login'))
 
 @app.route("/logout")
 def logout():
@@ -47,12 +49,26 @@ def register():
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
+
         if password1 != password2:
-            return render_template("error.html", message="Salasanat eivät täsmää")
+            return render_template("error.html", \
+                                   message="Salasanat eivät täsmää", \
+                                   redirect_url=url_for('register'))
+        if len(username) > 20:
+            return render_template("error.html", \
+                                   message="Käyttäjänimi on liian pitkä", \
+                                   redirect_url=url_for('register'))
+        if len(password1) <= 5:
+            return render_template("error.html", \
+                                   message="Salasana on liian lyhyt", \
+                                   redirect_url=url_for('register'))
+
         if users.register(username, password1):
             return redirect("/stops")
         else:
-            return render_template("error.html", message="Rekisteröinti ei onnistunut")
+            return render_template("error.html", \
+                                   message="Rekisteröinti ei onnistunut", \
+                                   redirect_url=url_for('register'))
 
 @app.route("/stops")
 def stop_view():
@@ -90,7 +106,17 @@ def hsl(id):
 @app.route("/stops/search/result", methods=["POST", "GET"])
 def search_result():
     user_search = request.args["search"]
+    if len(user_search) > 20:
+        return render_template("error.html", \
+                               message="Hakusana on liian pitkä", \
+                               redirect_url=url_for('stops_search'))
+
     search_results, results_length = stops.search(user_search)
+    if results_length == 0:
+        return render_template("error.html", \
+                               message="Hakusanalla ei löytynyt pysäkkejä", \
+                               redirect_url=url_for('stops_search'))
+
     return render_template("search_results.html", user_search=user_search, search_list=search_results, len=results_length)
 
 @app.route("/stops/search")
@@ -107,13 +133,17 @@ def stops_add(id):
     if request.method == "GET":
         hsl_id = id.split(":")[1]
         if not stops.add_stop(hsl_id, user_id):
-            return render_template("error.html", message="Yhtäkään pysäkkiä ei löytynyt")
+            return render_template("error.html", \
+                                   message="Yhtäkään pysäkkiä ei löytynyt", \
+                                   redirect_url=url_for('stops_search'))
     if request.method == "POST":
         user_input = request.form["content"]
         hsl_code = str(user_input)
         stops.add_stop(hsl_code, user_id)
         if not stops.add_stop(hsl_code, user_id):
-            return render_template("error.html", message="Yhtäkään pysäkkiä ei löytynyt")
+            return render_template("error.html", \
+                                   message="Yhtäkään pysäkkiä ei löytynyt", \
+                                   redirect_url=url_for('stops_search'))
     return redirect("/stops")
 
 @app.route("/template")
