@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS stops_new, stops, users;
+DROP TABLE IF EXISTS stops_new, stops, users, routes, stops_and_users, routes_and_stops;
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY, 
@@ -8,31 +8,31 @@ CREATE TABLE users (
 
 CREATE TABLE stops (
     id SERIAL PRIMARY KEY, 
-    hsl_id TEXT,
+    hsl_id TEXT UNIQUE,
     hsl_code TEXT, 
     name TEXT, 
-    owner INTEGER REFERENCES users, 
-    visible BOOLEAN
+    description TEXT
 );
 
 CREATE TABLE routes (
     id SERIAL PRIMARY KEY, 
-    hsl_id TEXT,
+    hsl_id TEXT UNIQUE,
     short_name TEXT,
-    long_name TEXT, 
+    long_name TEXT,
+    mode TEXT
 );
 
 CREATE TABLE stops_and_users (
     id SERIAL PRIMARY KEY, 
-    stop INTEGER REFERENCES stops 
-    user INTEGER REFERENCES users, 
+    stop_id INTEGER REFERENCES stops,
+    user_id INTEGER REFERENCES users, 
     visible BOOLEAN
 );
 
 CREATE TABLE routes_and_stops (
     id SERIAL PRIMARY KEY, 
-    stop INTEGER REFERENCES stops 
-    route INTEGER REFERENCES routes,
+    stop_id INTEGER REFERENCES stops, 
+    route_id INTEGER REFERENCES routes
 );
 
 
