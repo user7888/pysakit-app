@@ -19,7 +19,6 @@ def index():
     if not session.get('user_id'):
         return render_template('login.html')
 
-
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if request.method == "GET":
@@ -59,8 +58,10 @@ def register():
 def stop_view():
     if session.get('user_id') is None:
         return redirect("/")
+    
+    user_id = session.get('user_id')
+    list = stops.get_stops(user_id)
 
-    list = stops.get_stops()
     return render_template("stops.html", stops=list, len=len(list))
 
 @app.route("/stops/new")
@@ -99,15 +100,19 @@ def stops_search():
 @app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
 @app.route("/stops/add/<id>")
 def stops_add(id):
+    if session.get('user_id') is None:
+        return redirect("/")
+
+    user_id = session.get('user_id')
     if request.method == "GET":
         hsl_id = id.split(":")[1]
-        if not stops.add_stop(hsl_id):
+        if not stops.add_stop(hsl_id, user_id):
             return render_template("error.html", message="Yhtäkään pysäkkiä ei löytynyt")
     if request.method == "POST":
         user_input = request.form["content"]
         hsl_code = str(user_input)
-        # error handling here
-        if not stops.add_stop_by_code(hsl_code):
+        stops.add_stop(hsl_code, user_id)
+        if not stops.add_stop(hsl_code, user_id):
             return render_template("error.html", message="Yhtäkään pysäkkiä ei löytynyt")
     return redirect("/stops")
 
