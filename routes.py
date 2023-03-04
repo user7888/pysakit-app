@@ -5,8 +5,8 @@ from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
 from flask import redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
+from utils import auth
 import datetime
-import requests
 import json
 import time
 import users
@@ -21,6 +21,12 @@ def index():
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
+    allow = True
+    if users.user_id():
+        allow = False
+    if not allow:
+        return redirect('/')
+
     if request.method == "GET":
        return render_template("login.html")
     if request.method == "POST":
@@ -40,8 +46,11 @@ def logout():
 
 @app.route("/register", methods=["POST", "GET"])
 def register():
-    if session.get('user_id'):
-        return redirect("/")
+    allow = True
+    if users.user_id():
+        allow = False
+    if not allow:
+        return redirect('/')
 
     if request.method == "GET":
         return render_template("register.html")
@@ -58,6 +67,10 @@ def register():
             return render_template("error.html", \
                                    message="Käyttäjänimi on liian pitkä", \
                                    redirect_url=url_for('register'))
+        if len(username) <= 0:
+            return render_template("error.html", \
+                                   message="Käyttäjänimi on liian lyhyt", \
+                                   redirect_url=url_for('register'))
         if len(password1) <= 5:
             return render_template("error.html", \
                                    message="Salasana on liian lyhyt", \
@@ -72,41 +85,45 @@ def register():
 
 @app.route("/stops")
 def stop_view():
-    if session.get('user_id') is None:
-        return redirect("/")
-    
-    user_id = session.get('user_id')
-    list = stops.get_stops(user_id)
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
+    user_id = users.user_id()
 
+    list = stops.get_stops(user_id)
     return render_template("stops.html", stops=list, len=len(list))
 
 @app.route("/stops/new")
 def stops_new():
-    if session.get('user_id') is None:
-        return redirect("/")
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
 
     return render_template("stops_add.html")
 
 @app.route("/stops/delete/<int:id>")
 def stops_delete(id):
-    if session.get('user_id') is None:
-        return redirect("/")
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
+    user_id = users.user_id()
 
-    stops.delete(id)
+    stops.delete(id, user_id)
     return redirect("/stops")
 
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
-    if session.get('user_id') is None:
-        return redirect("/")
-
     stop_arrivals = stops.get_stop_arrivals(id)
     return render_template('individual_stop.html', arrivals=stop_arrivals)
 
 @app.route("/stops/search/result", methods=["POST", "GET"])
 def search_result():
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
+
     user_search = request.args["search"]
-    if len(user_search) > 20:
+    if len(user_search) > 15:
         return render_template("error.html", \
                                message="Hakusana on liian pitkä", \
                                redirect_url=url_for('stops_search'))
@@ -121,36 +138,30 @@ def search_result():
 
 @app.route("/stops/search")
 def stops_search():
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
     return render_template("search.html")
 
 @app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
 @app.route("/stops/add/<id>")
 def stops_add(id):
-    if session.get('user_id') is None:
-        return redirect("/")
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
+    user_id = users.user_id()
 
-    user_id = session.get('user_id')
     if request.method == "GET":
         hsl_id = id.split(":")[1]
         if not stops.add_stop(hsl_id, user_id):
             return render_template("error.html", \
                                    message="Yhtäkään pysäkkiä ei löytynyt", \
                                    redirect_url=url_for('stops_search'))
-    if request.method == "POST":
+    elif request.method == "POST":
         user_input = request.form["content"]
         hsl_code = str(user_input)
-        stops.add_stop(hsl_code, user_id)
         if not stops.add_stop(hsl_code, user_id):
             return render_template("error.html", \
                                    message="Yhtäkään pysäkkiä ei löytynyt", \
                                    redirect_url=url_for('stops_search'))
     return redirect("/stops")
-
-@app.route("/template")
-def template():
-    # 'should be declared as text' error fix
-    sql = text("SELECT content FROM messages")
-    result = db.session.execute(sql)
-
-    messages = result.fetchall()
-    return render_template("index_db.html", count=len(messages), messages=messages)
