@@ -10,22 +10,32 @@ import time
 def get_stops(user_id):
     sql = 'SELECT S.id, S.hsl_id, S.hsl_code, S.name, S.description ' \
           'FROM stops_and_users SU, stops S, users U ' \
-          'WHERE SU.user_id=U.id ' \
+          'WHERE U.id=SU.user_id ' \
           'AND SU.stop_id=S.id ' \
           'AND SU.visible ' \
+          'AND SU.user_id=:user_id ' \
           'ORDER BY SU.id DESC'
 
     result = db.session.execute(text(sql), {'user_id': user_id})
     stop_list = result.fetchall()
     return stop_list
 
-def delete(hsl_id):
+def delete(stop_id, user_id):
     sql = text('UPDATE stops_and_users ' \
                'SET visible=FALSE ' \
-               'WHERE stops_and_users.stop_id = ' \
-               '(SELECT id FROM stops WHERE hsl_id=:hsl_id)')
+               'WHERE id=' \
+                    '(SELECT id '\
+                    'FROM stops_and_users '\
+                    'WHERE visible=TRUE '\
+                    'ORDER BY id DESC '\
+                    'LIMIT 1) ' \
+               'AND stops_and_users.stop_id= '\
+                    '(SELECT id '\
+                    'FROM stops '\
+                    'WHERE hsl_id=:stop_id) ' \
+               'AND stops_and_users.user_id=:user_id')
 
-    db.session.execute(sql, {"hsl_id": str(hsl_id)})
+    db.session.execute(sql, {'user_id': user_id, 'stop_id': str(stop_id)})
     db.session.commit()
     return
 
@@ -96,6 +106,7 @@ def insert_all_stops():
     return
 
 def add_stop(hsl_code, user_id):
+    print("stop was added using id:", user_id)
     # Add based on hsl_code.
     if len(hsl_code) == 5:
         # Find the stop from database.
