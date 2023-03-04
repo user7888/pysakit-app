@@ -4,10 +4,11 @@
 <div class="content">
 <h2>Haku</h2>
 <hr>
-<form id="search-stop-form" action="/stops/search/result" method="GET">
+<form id="search-stop-form" action="/stops/search/result" method="POST">
     <label for="content">Hakusana</label>
     <input type="text" name="search">
     <input id="search-stop-button" type="submit" value="Lähetä">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 </form>
 {% endblock %}
 </div>

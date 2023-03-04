@@ -8,6 +8,7 @@
     <label for="content">Pysäkin tunnus</label>
     <input type="text" name="content" placeholder="">
     <input id="add-stop-form-button" type="submit" value="Lisää pysäkki">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
   </form>
 {% endblock %}
 </div>

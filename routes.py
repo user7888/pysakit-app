@@ -3,7 +3,7 @@ from db import db
 from flask import render_template
 from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
-from flask import redirect, render_template, request, session, url_for
+from flask import redirect, render_template, request, session, url_for, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from utils import auth
 import datetime
@@ -116,13 +116,22 @@ def hsl(id):
     stop_arrivals = stops.get_stop_arrivals(id)
     return render_template('individual_stop.html', arrivals=stop_arrivals)
 
+@app.route("/stops/search")
+def stops_search():
+    allow = auth.user_is_authorized()
+    if not allow:
+        return redirect('/')
+    return render_template("search.html")
+
 @app.route("/stops/search/result", methods=["POST", "GET"])
 def search_result():
     allow = auth.user_is_authorized()
     if not allow:
         return redirect('/')
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
 
-    user_search = request.args["search"]
+    user_search = request.form["search"]
     if len(user_search) > 15:
         return render_template("error.html", \
                                message="Hakusana on liian pitkä", \
@@ -136,13 +145,6 @@ def search_result():
 
     return render_template("search_results.html", user_search=user_search, search_list=search_results, len=results_length)
 
-@app.route("/stops/search")
-def stops_search():
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-    return render_template("search.html")
-
 @app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
 @app.route("/stops/add/<id>")
 def stops_add(id):
@@ -150,6 +152,9 @@ def stops_add(id):
     if not allow:
         return redirect('/')
     user_id = users.user_id()
+    if request.method == 'POST':
+        if session["csrf_token"] != request.form["csrf_token"]:
+            abort(403)
 
     if request.method == "GET":
         hsl_id = id.split(":")[1]
