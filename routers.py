@@ -95,13 +95,14 @@ def stop_view():
     if not allow:
         return redirect('/')
     user_id = users.user_id()
-    stop_list = stops.get_stops(user_id)
+    stop_list, stats = stops.get_stops(user_id)
     for stop in stop_list:
         print(stop)
 
     return render_template("stops.html", \
                            stops=stop_list, \
-                           len=len(stop_list))
+                           len=len(stop_list), \
+                           stats=stats)
 
 @app.route("/stops/new")
 def stops_new():

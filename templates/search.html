@@ -3,11 +3,12 @@
 {% block content %}
 <div class="content">
 <h2>Haku</h2>
+<p id="notification">Tällä sivulla voit hakea pysäkkiä joko pysäkin tai kadunnimen perusteella.</p>
 <hr>
 <form id="search-stop-form" action="/stops/search/result" method="POST">
     <label for="content">Hakusana</label>
     <input type="text" name="search">
-    <input id="search-stop-button" type="submit" value="Lähetä">
+    <input id="search-stop-button" type="submit" value="Hae">
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 </form>
 {% endblock %}

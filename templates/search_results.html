@@ -3,6 +3,10 @@
 {% block content %}
 <div class="content">
     <h2>Hakutulokset</h2>
+    <p id="notification">Hakutuloksia löytyi yhteensä {{ search_size }}. Kokeile tarkentaa hakuehtoja jos et löytänyt etsimääsi pysäkkiä.</p>
+    <form action="/stops/search" method="GET">
+        <input id="back-button" type="submit" value="Takaisin">
+    </form>
     <hr>
     {% if len == 0 %}
     <h3>Hakusanalla ei löytynyt pysäkkejä</h3>
@@ -10,22 +14,22 @@
     {% for result in search_list %}
     <ul>
       <li id="search-element">
-        {% if result["vehicleMode"] == "BUS" %}
-            <h3 id="search-element-name">{{ result["name"] }} (Bussi)</h3>
-        {% elif result["vehicleMode"] == "TRAM" %}
-            <h3 id="search-element-name">{{ result["name"] }} (Raitiovaunu)</h3>
-        {% elif result["vehicleMode"] == "SUBWAY" %}
-            <h3 id="search-element-name">{{ result["name"] }} (Metro)</h3>
-        {% elif result["vehicleMode"] == "RAIL" %}
-            <h3 id="search-element-name">{{ result["name"] }} (Juna)</h3>
-        {% elif result["vehicleMode"] == "FERRY" %}
-            <h3 id="search-element-name">{{ result["name"] }} (Lautta)</h3>
+        {% if result[5] == "BUS" %}
+            <h3 id="search-element-name">{{ result[2] }} (Bussi)</h3>
+        {% elif result[5] == "TRAM" %}
+            <h3 id="search-element-name">{{ result[2] }} (Raitiovaunu)</h3>
+        {% elif result[5] == "SUBWAY" %}
+            <h3 id="search-element-name">{{ result[2] }} (Metro)</h3>
+        {% elif result[5] == "RAIL" %}
+            <h3 id="search-element-name">{{ result[2] }} (Juna)</h3>
+        {% elif result[5] == "FERRY" %}
+            <h3 id="search-element-name">{{ result[2] }} (Lautta)</h3>
         {% else %}
-            <h3 id="search-element-name">{{ result["name"] }}</h3>
+            <h3 id="search-element-name">{{ result[2] }}</h3>
         {% endif %}
-        <p id="search-element-text">{{ result["desc"] }}</p>
-        <p id="search-element-text">Tunnus {{ result["code"] }}</p>
-        <a id="search-add-stop" href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+        <p id="search-element-text">{{ result[4] }}</p>
+        <p id="search-element-text">Tunnus {{ result[3] }}</p>
+        <a id="search-add-stop" href="/stops/add/{{ result[1] }}">Lisää seurattuihin</a>
       </li>
     </ul>
     {% endfor %}

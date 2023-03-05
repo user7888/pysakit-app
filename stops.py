@@ -17,13 +17,24 @@ def get_stops(user_id):
           'AND SU.stop_id=S.id ' \
           'AND SU.visible ' \
           'ORDER BY SU.id DESC'
+    
+    sql_stats = 'SELECT COUNT(DISTINCT RS.route_id) AS r, COUNT(DISTINCT SU.id) AS s ' \
+           'FROM routes_and_stops RS, stops S, stops_and_users SU ' \
+           'WHERE RS.stop_id=S.id ' \
+           'AND S.id=SU.stop_id ' \
+           'AND SU.user_id=:user_id ' \
+           'AND SU.visible ' \
+           'AND SU.user_id=:user_id'
+          
+    result_stats = db.session.execute(text(sql_stats), {'user_id': user_id})
+    stats = result_stats.fetchone()
 
     result = db.session.execute(text(sql), {'user_id': user_id})
     stop_list = result.fetchall()
     for stop in stop_list:
         print(stop)
     print(len(stop_list))
-    return stop_list
+    return stop_list, stats
 
 def delete(stop_id, user_id):
     # Old query for reference. Stop can't be singled out without

@@ -3,6 +3,13 @@
 {% block content %}
 <div class="content">
   <h2>Pysäkit</h2>
+  {% if len != 0 %}
+    {% if stats[1] == 1 %}
+      <p id="notification">Seurannassa {{ stats[1] }} pysäkki jonka läpi kulkee {{ stats[0] }} reittiä</p>
+    {% else %}
+      <p id="notification">Seurannassa {{ stats[1] }} pysäkkiä joiden läpi kulkee {{ stats[0] }} reittiä</p>
+    {% endif %}
+  {% endif %}
   {% if len == 0 %}
   <hr>
   <h3 id="notification">Sinulla ei velä ole pysäkkejä seurannassa</h3>
