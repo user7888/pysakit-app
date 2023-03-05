@@ -71,7 +71,7 @@ def register():
             return render_template("error.html", \
                                    message="Käyttäjänimi on liian lyhyt", \
                                    redirect_url=url_for('register'))
-        if len(password1) <= 5:
+        if len(password1) <= 0:
             return render_template("error.html", \
                                    message="Salasana on liian lyhyt", \
                                    redirect_url=url_for('register'))
@@ -89,9 +89,17 @@ def stop_view():
     if not allow:
         return redirect('/')
     user_id = users.user_id()
+    stop_list = stops.get_stops(user_id)
+    # Stop object
+    # [0] = key
+    # [1] = HSL id
+    # [2] = HSL code
+    # [3] = name
+    # [4] = street name
+    for stop in stop_list:
+        print(stop)
 
-    list = stops.get_stops(user_id)
-    return render_template("stops.html", stops=list, len=len(list))
+    return render_template("stops.html", stops=stop_list, len=len(stop_list))
 
 @app.route("/stops/new")
 def stops_new():
@@ -114,6 +122,11 @@ def stops_delete(id):
 @app.route("/stops/schedules/<int:id>")
 def hsl(id):
     stop_arrivals = stops.get_stop_arrivals(id)
+    # Arrival object
+    # [0] = time
+    # [1] = headsign
+    # [2] = name
+    # [3] = mode
     return render_template('individual_stop.html', arrivals=stop_arrivals)
 
 @app.route("/stops/search")
@@ -128,6 +141,12 @@ def search_result():
     allow = auth.user_is_authorized()
     if not allow:
         return redirect('/')
+    
+    if not request.form:
+        return render_template("error.html", \
+                               message="Jotain meni vikaan..", \
+                               redirect_url=url_for('stops_search'))
+    
     if session["csrf_token"] != request.form["csrf_token"]:
         abort(403)
 

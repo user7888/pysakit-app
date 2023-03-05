@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS stops_new, stops, users, routes, stops_and_users, routes_and_stops;
+DROP TABLE IF EXISTS stops, users, routes, stops_and_users, routes_and_stops, transport_categories;
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY, 
@@ -6,12 +6,18 @@ CREATE TABLE users (
     password TEXT
 );
 
+CREATE TABLE transport_categories (
+    id SERIAL PRIMARY KEY, 
+    category TEXT
+);
+
 CREATE TABLE stops (
     id SERIAL PRIMARY KEY, 
     hsl_id TEXT UNIQUE,
     hsl_code TEXT, 
     name TEXT, 
-    description TEXT
+    description TEXT,
+    category_id INTEGER REFERENCES transport_categories
 );
 
 CREATE TABLE routes (
@@ -19,7 +25,7 @@ CREATE TABLE routes (
     hsl_id TEXT UNIQUE,
     short_name TEXT,
     long_name TEXT,
-    mode TEXT
+    category_id INTEGER REFERENCES transport_categories
 );
 
 CREATE TABLE stops_and_users (
@@ -35,5 +41,9 @@ CREATE TABLE routes_and_stops (
     route_id INTEGER REFERENCES routes
 );
 
-
-
+INSERT INTO transport_categories (category) VALUES
+('BUS'),
+('TRAM'),
+('SUBWAY'),
+('RAIL'),
+('FERRY');
