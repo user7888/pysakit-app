@@ -45,30 +45,23 @@ def delete(stop_id, user_id):
     return
 
 def search(user_search):
-    # name: transport stop name
-    # code: transport stop code visible in stops
-    # desc: transport stop street name
-    # locationType: stop or station
-    # vehicleMode: category
-    query = """{
-        stops(name: """+f'"{str(user_search)}"'+"""){
-            gtfsId
-            name
-            code
-            desc
-            locationType
-            vehicleMode
-        }
-    }"""
-    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
-    response = requests.post(url, json={'query': query})
-    dict = json.loads(response.text)
-    # Access the array from query. Each
-    # transport stop is a dictionary.
-    search_result = dict["data"]["stops"]
-    for result in search_result:
-        print(result)
-    return search_result, len(search_result)
+    sql = 'SELECT S.id, S.hsl_id, S.name, S.hsl_code, S.description, C.category ' \
+          'FROM stops S ' \
+          'JOIN transport_categories C ON S.category_id=C.id ' \
+          'WHERE LOWER(S.name) LIKE LOWER(:user_search) ' \
+          'OR LOWER(S.description) LIKE LOWER(:user_search) ' \
+          'LIMIT 6'
+    result = db.session.execute(text(sql), {'user_search': "%"+user_search+"%"})
+    search_result = result.fetchall()
+
+    sql = 'SELECT COUNT(S.id)' \
+          'FROM stops S ' \
+          'WHERE LOWER(S.name) LIKE LOWER(:user_search) ' \
+          'OR LOWER(S.description) LIKE LOWER(:user_search)'
+
+    result2 = db.session.execute(text(sql), {'user_search': "%"+user_search+"%"})
+    search_size = result2.one()
+    return search_result, len(search_result) ,search_size[0]
 
 def insert_all_stops():
     sql = text('SELECT COUNT(*) FROM stops')
@@ -169,11 +162,11 @@ def get_stop_arrivals(id):
                                 id
                             }
                         }
-                        }
                     }
                 }
-            }  
-        }"""
+            }
+        }  
+    }"""
     url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
     response = requests.post(url, json={'query': query})
     # Convert the query response

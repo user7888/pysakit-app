@@ -159,7 +159,7 @@ def search_result():
                                message="Hakusana on liian pitkä", \
                                redirect_url=url_for('stops_search'))
 
-    search_results, results_length = stops.search(user_search)
+    search_results, results_length, search_size = stops.search(user_search)
     if results_length == 0:
         return render_template("error.html", \
                                message="Hakusanalla ei löytynyt pysäkkejä", \
@@ -168,7 +168,8 @@ def search_result():
     return render_template("search_results.html", \
                            user_search=user_search, \
                            search_list=search_results, \
-                           len=results_length)
+                           len=results_length, \
+                           search_size=search_size)
 
 @app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
 @app.route("/stops/add/<id>")
@@ -182,8 +183,7 @@ def stops_add(id):
             abort(403)
 
     if request.method == "GET":
-        hsl_id = id.split(":")[1]
-        if not stops.add_stop(hsl_id, user_id):
+        if not stops.add_stop(id, user_id):
             return render_template("error.html", \
                                    message="Yhtäkään pysäkkiä ei löytynyt", \
                                    redirect_url=url_for('stops_search'))
