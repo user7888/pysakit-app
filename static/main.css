@@ -139,9 +139,13 @@ h2 {
 
     display: grid;
     max-width: 35em;
-    grid-template-columns: 10em 10em 5em 10em;
-    grid-template-rows: 2em 2em 4em;
+    grid-template-columns: 20em 15em;
+    grid-template-rows: 2em 2em 2em 4em;
     grid-row-gap: .1em;
+}
+
+#notification {
+    color: white;
 }
 
 #stop-text {
@@ -155,7 +159,7 @@ h2 {
 #stop-info {
     background: lightcoral;
     color: white;
-    grid-column-start: 4;
+    grid-column-start: 2;
     grid-row-start: 1;
     width: 8em;
     height: 3em;
@@ -164,14 +168,19 @@ h2 {
     padding-top: .4em;
 
     line-height: 2.5em;
-    margin-left: 1.5em;
+    margin-left: 6.3em;
     margin-top: .5em;
+}
+
+#stop-info:hover {
+    background: rgb(220, 110, 110);
+    color: white;
 }
 
 #stop-delete {
     background: lightcoral;
     grid-column-start: 1;
-    grid-row-start: 3;
+    grid-row-start: 4;
 
     width: 5em;
     height: 2em;
@@ -184,6 +193,11 @@ h2 {
     margin-top: 1.2em;
 }
 
+#stop-delete:hover {
+    background: rgb(220, 110, 110);
+    color: white;
+}
+
 #stop-name {
     grid-column-start: 1;
     grid-row-start: 1;
@@ -193,7 +207,6 @@ h2 {
 
 #stop-info-text {
     grid-column-start: 1;
-    grid-row-start: 2;
     margin-left: .2em;
     margin-top: .2em;
 }
@@ -225,6 +238,11 @@ h2 {
     margin-top: 1em;
 }
 
+#add-stop-form-button:hover {
+    background: rgb(220, 110, 110);
+    color: white;
+}
+
 #search-stop-form {
     background: white;
     border-radius: .5em;
@@ -253,11 +271,54 @@ h2 {
     margin-top: 1em;
 }
 
+#search-stop-button:hover {
+    background: rgb(220, 110, 110);
+    color: white;
+}
+
 #search-element {
     background: white;
-    margin-top: 1em;
     border-radius: .8em;
-    padding: 0.5em;
+
+    display: grid;
+    max-width: 35em;
+    grid-template-columns: 15em 15em;
+    grid-template-rows: 2em 2em 4em;
+}
+
+#search-element-name {
+    grid-column-start: 1;
+    margin-top: .5em;
+    margin-left: .5em;
+}
+
+
+#search-element-text {
+    grid-column-start: 1;
+    font-weight: 500;
+    margin-left: .5em;
+}
+
+#search-add-stop {
+    background: lightcoral;
+    grid-column-start: 2;
+    grid-row-start: 1;
+
+    width: 9em;
+    height: 2em;
+    text-align: center;
+    border-radius: .7em;
+    padding-top: 3em;
+    padding: .5em;
+
+    line-height: 1.8em;
+    margin-left: 9em;
+    margin-top: 1.2em;
+}
+
+#search-add-stop:hover {
+    background: rgb(220, 110, 110);
+    color: white;
 }
 
 #search-link {
@@ -294,11 +355,16 @@ h2 {
     border: none;
 }
 
+#button-generic:hover {
+    background: rgb(220, 110, 110);
+    color: white;
+}
+
 #button-logout {
     background: lightcoral;
     border-color: lightcoral;
     color: white;
-    font-size: 15px;
+    font-size: 16px;
     width: 8em;
     height: 3em;
     text-align: center;
@@ -310,4 +376,25 @@ h2 {
 #button-logout:hover {
     background: rgb(220, 110, 110);
     color: white;
+}
+
+#back-button {
+    background: lightcoral;
+    border-color: lightcoral;
+    color: white;
+    font-size: 16px;
+    width: 7em;
+    height: 2.5em;
+    text-align: center;
+    border: none;
+    margin-left: .1em;
+}
+
+#back-button:hover {
+    background: rgb(220, 110, 110);
+    color: white;
+}
+
+#arrivals {
+    list-style-type: none;
 }
