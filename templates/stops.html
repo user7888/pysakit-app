@@ -5,14 +5,27 @@
   <h2>Pysäkit</h2>
   {% if len == 0 %}
   <hr>
-  <h3>Sinulla ei velä ole pysäkkejä seurannassa</h3>
+  <h3 id="notification">Sinulla ei velä ole pysäkkejä seurannassa</h3>
   {% else %}
   <hr>
     <ul>
     {% for stop in stops %}
       <li id="stop-element">
-      <h3 id="stop-name">{{ stop[2] }}</h3>
-      <p id="stop-info-text">info: {{ stop[1] }}</p>
+      <h3 id="stop-name">{{ stop[3] }}</h3>
+      <p id="stop-info-text">{{ stop[4] }}</p>
+      {% if stop[5] == 'BUS' %}
+        <p id="stop-info-text">Bussipysäkki</p>
+      {% elif stop[5] == 'TRAM' %}
+        <p id="stop-info-text">Raitiovaunupysäkki</p>
+      {% elif stop[5] == 'SUBWAY' %}
+        <p id="stop-info-text">Metrolaituri</p>
+      {% elif stop[5] == 'RAIL' %}
+        <p id="stop-info-text">Juna-asema</p>
+      {% elif stop[5] == 'FERRY' %}
+        <p id="stop-info-text">Lautta</p>
+      {% else %}
+        <p id="stop-info-text"> </p>
+      {% endif %}
       <a id="stop-delete" href="/stops/delete/{{ stop[1] }}">Poista</a>
       <a id="stop-info" href="/stops/schedules/{{ stop[1] }}">Näytä pysäkki</a>
       </li>

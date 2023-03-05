@@ -5,14 +5,28 @@
     <h2>Hakutulokset</h2>
     <hr>
     {% if len == 0 %}
-    <h4>Hakusanalla ei löytynyt pysäkkejä</h4>
+    <h3>Hakusanalla ei löytynyt pysäkkejä</h3>
     {% else %}
     {% for result in search_list %}
     <ul>
-    <li id="search-element">
-    Pysäkki: {{ result["name"] }} | {{ result["desc"] }} | {{ result["code"] }}<br>
-    <a id="search-link" href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
-       </li>
+      <li id="search-element">
+        {% if result["vehicleMode"] == "BUS" %}
+            <h3 id="search-element-name">{{ result["name"] }} (Bussi)</h3>
+        {% elif result["vehicleMode"] == "TRAM" %}
+            <h3 id="search-element-name">{{ result["name"] }} (Raitiovaunu)</h3>
+        {% elif result["vehicleMode"] == "SUBWAY" %}
+            <h3 id="search-element-name">{{ result["name"] }} (Metro)</h3>
+        {% elif result["vehicleMode"] == "RAIL" %}
+            <h3 id="search-element-name">{{ result["name"] }} (Juna)</h3>
+        {% elif result["vehicleMode"] == "FERRY" %}
+            <h3 id="search-element-name">{{ result["name"] }} (Lautta)</h3>
+        {% else %}
+            <h3 id="search-element-name">{{ result["name"] }}</h3>
+        {% endif %}
+        <p id="search-element-text">{{ result["desc"] }}</p>
+        <p id="search-element-text">Tunnus {{ result["code"] }}</p>
+        <a id="search-add-stop" href="/stops/add/{{ result['gtfsId'] }}">Lisää seurattuihin</a>
+      </li>
     </ul>
     {% endfor %}
 {% endif %}

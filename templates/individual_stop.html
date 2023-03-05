@@ -3,12 +3,27 @@
 {% block content %}
 <div class="content">
 <h2>Aikataulut</h2>
+<form action="/stops" method="GET">
+  <input id="back-button" type="submit" value="Takaisin">
+</form>
 <hr>
 {% for arrival in arrivals %}
-<ul>
-    <li id="arrival-element">
-    Nimi: {{ arrival[0] }} <br>
-    Saapuu: {{ arrival[1] }} <br>
+<ul id="arrivals">
+  <li id="arrival-element">
+    {% if arrival[3] == 'BUS' %}
+    <h4>Bussi {{ arrival[1] }}</h4>
+    {% elif arrival[3] == 'TRAM' %}
+    <h4>Raitiovaunu {{ arrival[1] }}</h4>
+    {% elif arrival[3] == 'SUBWAY' %}
+    <h4>Metro {{ arrival[1] }}</h4>
+    {% elif arrival[3] == 'RAIL' %}
+    <h4>Juna {{ arrival[1] }}</h4>
+    {% elif arrival[3] == 'FERRY' %}
+    <h4>Lautta {{ arrival[1] }}</h4>
+    {% else%}
+    <h5>Nimi {{ arrival[1] }}</h4>
+    {% endif %}
+    Saapuu pysäkille {{ arrival[0] }} <br>
     <a href="/empty">Nappi</a>
     </li>
 </ul>
