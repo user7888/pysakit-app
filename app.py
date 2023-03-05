@@ -7,6 +7,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = getenv("SECRET_KEY")
 
-import routes
+import routers
 from utils import populate_db
 populate_db.insert_stops()

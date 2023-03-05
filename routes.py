@@ -1,191 +1,82 @@
-from app import app
-from db import db
-from flask import render_template
 from sqlalchemy import text
-from flask_sqlalchemy import SQLAlchemy
-from flask import redirect, render_template, request, session, url_for, abort
-from werkzeug.security import check_password_hash, generate_password_hash
-from utils import auth
-import datetime
+from db import db
+import requests
 import json
-import time
-import users
-import stops
 
-@app.route("/")
-def index():
-    if session.get('user_id'):
-        return redirect("/stops")
-    if not session.get('user_id'):
-        return render_template('login.html')
+def add_routes(stop):
+    # stop[0] = stop primary key
+    # stop[1] = stop id for HSL api
 
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    allow = True
-    if users.user_id():
-        allow = False
-    if not allow:
-        return redirect('/')
+    # Get routes related to new stop
+    # from HSL api.
+    query = """{
+        stop(id: "HSL:"""+f'{stop[1]}"'+""") {
+            name
+            patterns {
+                id
+                code
+                directionId
+                headsign
+                route {
+                    gtfsId
+                    shortName
+                    longName
+                    mode
+                }
+            }
+        }
+    }"""
+    url = 'https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql'
+    response = requests.post(url, json={'query': query})
+    stop_query = json.loads(response.text)
+    categories = {'BUS': 1, 'TRAM': 2, 'SUBWAY': 3, 'RAIL': 4, 'FERRY': 5}
 
-    if request.method == "GET":
-       return render_template("login.html")
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if users.login(username, password):
-            return redirect("/stops")
-        else:
-            return render_template("error.html", \
-                                   message="Väärä tunnus tai salasana", \
-                                   redirect_url=url_for('login'))
+    # Add routes related to the newly added stop.
+    routes = stop_query['data']['stop']['patterns']
+    for route in routes:
+        hsl_id = route['code']
+        short_name = route['route']['shortName']
+        long_name = route['route']['longName']
+        mode = categories[route['route']['mode']]
 
-@app.route("/logout")
-def logout():
-    users.logout()
-    return redirect("/")
-
-@app.route("/register", methods=["POST", "GET"])
-def register():
-    allow = True
-    if users.user_id():
-        allow = False
-    if not allow:
-        return redirect('/')
-
-    if request.method == "GET":
-        return render_template("register.html")
-    if request.method == "POST":
-        username = request.form["username"]
-        password1 = request.form["password1"]
-        password2 = request.form["password2"]
-
-        if password1 != password2:
-            return render_template("error.html", \
-                                   message="Salasanat eivät täsmää", \
-                                   redirect_url=url_for('register'))
-        if len(username) > 20:
-            return render_template("error.html", \
-                                   message="Käyttäjänimi on liian pitkä", \
-                                   redirect_url=url_for('register'))
-        if len(username) <= 0:
-            return render_template("error.html", \
-                                   message="Käyttäjänimi on liian lyhyt", \
-                                   redirect_url=url_for('register'))
-        if len(password1) <= 0:
-            return render_template("error.html", \
-                                   message="Salasana on liian lyhyt", \
-                                   redirect_url=url_for('register'))
-
-        if users.register(username, password1):
-            return redirect("/stops")
-        else:
-            return render_template("error.html", \
-                                   message="Rekisteröinti ei onnistunut", \
-                                   redirect_url=url_for('register'))
-
-@app.route("/stops")
-def stop_view():
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-    user_id = users.user_id()
-    stop_list = stops.get_stops(user_id)
-    # Stop object
-    # [0] = key
-    # [1] = HSL id
-    # [2] = HSL code
-    # [3] = name
-    # [4] = street name
-    for stop in stop_list:
-        print(stop)
-
-    return render_template("stops.html", stops=stop_list, len=len(stop_list))
-
-@app.route("/stops/new")
-def stops_new():
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-
-    return render_template("stops_add.html")
-
-@app.route("/stops/delete/<int:id>")
-def stops_delete(id):
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-    user_id = users.user_id()
-
-    stops.delete(id, user_id)
-    return redirect("/stops")
-
-@app.route("/stops/schedules/<int:id>")
-def hsl(id):
-    stop_arrivals = stops.get_stop_arrivals(id)
-    # Arrival object
-    # [0] = time
-    # [1] = headsign
-    # [2] = name
-    # [3] = mode
-    return render_template('individual_stop.html', arrivals=stop_arrivals)
-
-@app.route("/stops/search")
-def stops_search():
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-    return render_template("search.html")
-
-@app.route("/stops/search/result", methods=["POST", "GET"])
-def search_result():
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
+        # Check if route already exists.
+        sql = text('SELECT hsl_id FROM routes WHERE hsl_id=:hsl_id')
+        result = db.session.execute(sql, {'hsl_id': hsl_id})
+        found = result.fetchone()
+        if found:
+            continue
+        
+        # Insert route document into
+        # database.
+        sql = text('INSERT INTO routes (hsl_id, short_name, long_name, category_id) ' \
+                   'VALUES (:hsl_id, :short_name, :long_name, :category_id)')
+        db.session.execute(sql, {'hsl_id': hsl_id, 'short_name': short_name, 'long_name': long_name, 'category_id': mode})
+        db.session.commit()
+        # Update routes_and_stops table.
+    add_routes_and_stops(stop, routes, hsl_id)
+    return
     
-    if not request.form:
-        return render_template("error.html", \
-                               message="Jotain meni vikaan..", \
-                               redirect_url=url_for('stops_search'))
-    
-    if session["csrf_token"] != request.form["csrf_token"]:
-        abort(403)
+def add_routes_and_stops(stop, routes, hsl_id):
+    # Check if the routes_and_stops
+    # table needs to be updated.
+    sql = text('SELECT COUNT(*) ' \
+               'FROM routes_and_stops ' \
+                'WHERE stop_id=:stop_id')
+    result = db.session.execute(sql, {'stop_id': stop[0]})
+    found = result.fetchone()
+    if found[0] == 0:
+        for route in routes:
+            route_id = route['code']
+            stop_id = stop[0]
 
-    user_search = request.form["search"]
-    if len(user_search) > 15:
-        return render_template("error.html", \
-                               message="Hakusana on liian pitkä", \
-                               redirect_url=url_for('stops_search'))
+            sql = 'SELECT id ' \
+                  'FROM routes ' \
+                  'WHERE hsl_id=:route_id'
+            result = db.session.execute(text(sql), {'route_id': route_id})
+            route_id = result.fetchone()
 
-    search_results, results_length = stops.search(user_search)
-    if results_length == 0:
-        return render_template("error.html", \
-                               message="Hakusanalla ei löytynyt pysäkkejä", \
-                               redirect_url=url_for('stops_search'))
-
-    return render_template("search_results.html", user_search=user_search, search_list=search_results, len=results_length)
-
-@app.route("/stops/add/", defaults={'id':None}, methods=["POST", "GET"])
-@app.route("/stops/add/<id>")
-def stops_add(id):
-    allow = auth.user_is_authorized()
-    if not allow:
-        return redirect('/')
-    user_id = users.user_id()
-    if request.method == 'POST':
-        if session["csrf_token"] != request.form["csrf_token"]:
-            abort(403)
-
-    if request.method == "GET":
-        hsl_id = id.split(":")[1]
-        if not stops.add_stop(hsl_id, user_id):
-            return render_template("error.html", \
-                                   message="Yhtäkään pysäkkiä ei löytynyt", \
-                                   redirect_url=url_for('stops_search'))
-    elif request.method == "POST":
-        user_input = request.form["content"]
-        hsl_code = str(user_input)
-        if not stops.add_stop(hsl_code, user_id):
-            return render_template("error.html", \
-                                   message="Yhtäkään pysäkkiä ei löytynyt", \
-                                   redirect_url=url_for('stops_search'))
-    return redirect("/stops")
+            sql = text('INSERT INTO routes_and_stops (stop_id, route_id) '\
+                       'VALUES (:stop_id, :route_id)')
+            db.session.execute(sql, {'stop_id': stop_id, 'route_id': route_id[0]})
+            db.session.commit()
+    return
