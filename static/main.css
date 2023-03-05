@@ -88,7 +88,7 @@ form #login-button {
 }
 
 form #login-button:hover {
-    background: rgb(0, 100, 100);
+    background: rgb(220, 110, 110);
     color: white;
 }
 
@@ -121,8 +121,8 @@ form #register-button {
     margin-top: .5em;
 }
 
-form #login-button:hover {
-    background: rgb(0, 100, 100);
+form #register-button:hover {
+    background: rgb(220, 110, 110);
     color: white;
 }
 
@@ -297,12 +297,17 @@ h2 {
 #button-logout {
     background: lightcoral;
     border-color: lightcoral;
-    font-weight: bold;
     color: white;
+    font-size: 15px;
     width: 8em;
     height: 3em;
     text-align: center;
     border: none;
-    margin-top: 9em;
-    margin-left: .8em;
+    margin-top: 8em;
+    margin-left: .1em;
+}
+
+#button-logout:hover {
+    background: rgb(220, 110, 110);
+    color: white;
 }
